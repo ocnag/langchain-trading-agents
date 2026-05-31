@@ -204,6 +204,36 @@ class GrokModel(BaseModelWrapper):
         return self.model
 
 
+class MiniMaxModel(BaseModelWrapper):
+    def __init__(self, model_name: str = "abab6.5s-chat", **kwargs):
+        super().__init__(model_name, **kwargs)
+        try:
+            from langchain_community.chat_models import MiniMaxChat
+        except ImportError:
+            raise ImportError(
+                "Unable to find `langchain_community` package. Please execute `pip install langchain-community` and configure MINIMAX_API_KEY."
+            )
+        
+        # Import rate limiter
+        from langchain_trading_agents.utils.rate_limiter import minimax_rate_limiter
+        
+        self.model = MiniMaxChat(model=model_name, **kwargs)
+        self.rate_limiter = minimax_rate_limiter
+    
+    async def invoke(self, messages: list[Dict[str, Any]]) -> str:
+        # Wait for rate limit slot before making the request
+        acquired = await self.rate_limiter.wait_for_slot(timeout=300)  # Wait up to 5 minutes
+        if not acquired:
+            raise Exception("MiniMax API rate limit exceeded. Could not acquire slot within timeout.")
+        
+        response = await self.model.ainvoke({"messages": messages})
+        return response["output"]
+
+    @property
+    def raw_model(self):
+        return self.model
+
+
 # === Factory Method ===
 
 def get_llm_model(provider: str, model_name: str, **kwargs) -> BaseModelWrapper:
@@ -241,6 +271,8 @@ def get_llm_model(provider: str, model_name: str, **kwargs) -> BaseModelWrapper:
             return HuggingfaceModel(model_name, **kwargs)
         elif provider == ModelProvider.XAI:
             return GrokModel(model_name, **kwargs)
+        elif provider == ModelProvider.MINIMAX:
+            return MiniMaxModel(model_name, **kwargs)
         else:
             raise ValueError(f"Unsupported provider: {provider}. Supported providers: {ModelProvider.get_array()}")
     except ImportError as e:

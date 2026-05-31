@@ -13,10 +13,11 @@ class ModelProvider:
     DEEPSEEK = "deepseek"
     HUGGINGFACE = "huggingface"
     XAI = "xai"
+    MINIMAX = "minimax"
     #OTHER="other"
     @classmethod
     def get_array(cls):
-        return [cls.OPENAI, cls.OLLAMA, cls.GEMINI, cls.ANTHROPIC, cls.QWEN, cls.DEEPSEEK, cls.HUGGINGFACE, cls.XAI]
+        return [cls.OPENAI, cls.OLLAMA, cls.GEMINI, cls.ANTHROPIC, cls.QWEN, cls.DEEPSEEK, cls.HUGGINGFACE, cls.XAI, cls.MINIMAX]
 
 
 class ConvMessageType:
