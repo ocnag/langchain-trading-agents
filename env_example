@@ -26,6 +26,7 @@ OHLC_LIMIT_FOR_LLM=30
 
 GOOGLE_API_KEY=your-api-key
 OPENAI_API_KEY="your_api_key_here"
+MINIMAX_API_KEY="your_minimax_api_key_here"
 
 #LANGFUSE_SECRET_KEY = "sk-xx"
 #LANGFUSE_PUBLIC_KEY = "pk-xx"
